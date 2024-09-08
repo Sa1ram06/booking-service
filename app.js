@@ -2,6 +2,7 @@ const express = require("express");
 const mysql = require("mysql2/promise"); // Use mysql2
 const dbConfig = require("./dbConfig");
 const bodyParser = require("body-parser");
+const cors = require('cors');  // Import cors
 
 // controllers
 const bookingController = require("./controllers/bookingController");
@@ -9,6 +10,7 @@ const sessionController = require("./controllers/sessionController");
 
 const app = express();
 const port = process.env.PORT || 3000; // Use environment variable or default port
+app.use(cors());  // This will allow all origins
 
 // Include body-parser middleware to handle JSON data
 app.use(bodyParser.json());

@@ -1,7 +1,6 @@
 const express = require("express");
 const mysql = require("mysql2/promise"); // Use mysql2
 const dbConfig = require("./dbConfig");
-const OpenAI = require('openai');
 const bodyParser = require("body-parser");
 
 // controllers
@@ -10,12 +9,10 @@ const sessionController = require("./controllers/sessionController");
 
 const app = express();
 const port = process.env.PORT || 3000; // Use environment variable or default port
-const staticMiddleware = express.static("public");
 
 // Include body-parser middleware to handle JSON data
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // For form data handling
-app.use(staticMiddleware);
 
 // Create a MySQL connection pool
 const pool = mysql.createPool(dbConfig);
@@ -38,35 +35,6 @@ app.post("/api/booking", bookingController.createBooking);
 
 // session routes
 app.post("/api/session", sessionController.createSession);
-
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: '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',
-  baseURL: 'https://integrate.api.nvidia.com/v1',
-});
-
-// Endpoint to handle chat requests
-app.post('/api/chat', async (req, res) => {
-  const { message } = req.body;
-
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "meta/llama3-70b-instruct",
-      messages: [{ "role": "user", "content": message }],
-      temperature: 0.2,
-      top_p: 0.7,
-      max_tokens: 1024,
-      stream: false,
-    });
-
-    // Extract and send the response back to frontend
-    const responseText = completion.choices[0]?.message?.content || '';
-    res.json({ response: responseText });
-  } catch (error) {
-    console.error('Error during completion:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
 
 // Initialize Server
 app.listen(port, () => {
